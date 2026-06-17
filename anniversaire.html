@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joyeux Anniversaire, mon amour</title>
+<meta name="description" content="Une lettre d'anniversaire pour celle qui illumine chaque jour.">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS (CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- GSAP + ScrollTrigger (CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          night: '#0b0c10',
+          'night-soft': '#13151c',
+          gold: '#d4af37',
+          'gold-soft': '#e9d18b',
+          blush: '#e8b4bc',
+          passion: '#9b2226',
+          ivory: '#f5f1e8',
+        },
+        fontFamily: {
+          serif: ['Cormorant Garamond', 'serif'],
+          sans: ['Inter', 'sans-serif'],
+        },
+      },
+    },
+  }
+</script>
+
+<style>
+  :root {
+    --night: #0b0c10;
+    --night-soft: #13151c;
+    --gold: #d4af37;
+    --gold-soft: #e9d18b;
+    --blush: #e8b4bc;
+    --passion: #9b2226;
+    --ivory: #f5f1e8;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    background: var(--night);
+    color: var(--ivory);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  h1, h2, h3, blockquote, .font-serif-display {
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  /* ===== Background ambient gradient ===== */
+  .ambient-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212,175,55,0.10), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 85% 70%, rgba(155,34,38,0.08), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 10% 85%, rgba(232,180,188,0.06), transparent 60%),
+      var(--night);
+  }
+
+  /* ===== Starfield canvas ===== */
+  #starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  section, header, footer {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ===== Glassmorphism card ===== */
+  .glass-card {
+    background: linear-gradient(155deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(212,175,55,0.18);
+    border-radius: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.5s cubic-bezier(0.22,1,0.36,1), border-color 0.5s ease, box-shadow 0.5s ease;
+    will-change: transform;
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(212,175,55,0.15) 0%, transparent 40%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  .glass-card:hover,
+  .glass-card.is-active {
+    transform: translateY(-6px);
+    border-color: rgba(212,175,55,0.55);
+    box-shadow: 0 20px 50px -20px rgba(212,175,55,0.25), 0 0 0 1px rgba(212,175,55,0.08);
+  }
+
+  .glass-card:hover::before,
+  .glass-card.is-active::before {
+    opacity: 1;
+  }
+
+  /* ===== Gold gradient text ===== */
+  .text-gold-gradient {
+    background: linear-gradient(120deg, var(--gold-soft) 0%, var(--gold) 45%, var(--blush) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ===== Hero word reveal ===== */
+  .word-reveal {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.6em);
+    filter: blur(6px);
+  }
+
+  .no-js .word-reveal,
+  .reduced-motion .word-reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  /* ===== Scroll invite button ===== */
+  .scroll-invite {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1.85rem;
+    border: 1px solid rgba(212,175,55,0.45);
+    border-radius: 999px;
+    color: var(--gold-soft);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    background: rgba(212,175,55,0.05);
+    transition: background 0.4s ease, border-color 0.4s ease, transform 0.3s ease;
+    animation: invite-pulse 2.6s ease-in-out infinite;
+  }
+
+  .scroll-invite:hover {
+    background: rgba(212,175,55,0.14);
+    border-color: rgba(212,175,55,0.8);
+  }
+
+  .scroll-invite:active {
+    transform: scale(0.97);
+  }
+
+  @keyframes invite-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.25); }
+    50% { box-shadow: 0 0 0 8px rgba(212,175,55,0); }
+  }
+
+  .scroll-chevron {
+    animation: chevron-bounce 2.2s ease-in-out infinite;
+  }
+
+  @keyframes chevron-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+  }
+
+  /* ===== Candle (signature element) ===== */
+  .candle-wrap {
+    position: relative;
+    width: 60px;
+    height: 140px;
+    margin: 0 auto;
+  }
+
+  .candle-body {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px;
+    height: 86px;
+    border-radius: 4px 4px 7px 7px;
+    background: linear-gradient(180deg, #fdf6e3 0%, #f0e4c4 55%, #e6d6ab 100%);
+    box-shadow: inset -3px 0 6px rgba(0,0,0,0.12), inset 3px 0 4px rgba(255,255,255,0.4);
+  }
+
+  .candle-body::before,
+  .candle-body::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    height: 2px;
+    background: rgba(180,150,90,0.25);
+    border-radius: 2px;
+  }
+  .candle-body::before { top: 20px; }
+  .candle-body::after { top: 46px; }
+
+  .candle-wick {
+    position: absolute;
+    bottom: 86px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 8px;
+    background: #3a2d1f;
+    border-radius: 1px;
+  }
+
+  .candle-flame {
+    position: absolute;
+    bottom: 92px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 26px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: radial-gradient(circle at 50% 75%, #fff6d6 0%, var(--gold-soft) 35%, var(--passion) 85%);
+    filter: drop-shadow(0 0 10px rgba(212,175,55,0.7)) drop-shadow(0 0 22px rgba(212,175,55,0.35));
+    transform-origin: 50% 95%;
+    animation: flame-flicker 2.8s ease-in-out infinite;
+    will-change: transform, filter;
+  }
+
+  @keyframes flame-flicker {
+    0%   { transform: translateX(-50%) rotate(-2deg) scaleY(1); }
+    20%  { transform: translateX(-50%) rotate(2deg) scaleY(1.05); }
+    40%  { transform: translateX(-50%) rotate(-1deg) scaleY(0.96); }
+    60%  { transform: translateX(-50%) rotate(3deg) scaleY(1.04); }
+    80%  { transform: translateX(-50%) rotate(-3deg) scaleY(0.98); }
+    100% { transform: translateX(-50%) rotate(-2deg) scaleY(1); }
+  }
+
+  .candle-glow {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,175,55,0.30), transparent 70%);
+    animation: glow-breathe 2.8s ease-in-out infinite;
+    will-change: opacity, transform;
+  }
+
+  @keyframes glow-breathe {
+    0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(0.92); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+  }
+
+  /* ===== Quote decoration ===== */
+  .quote-mark {
+    position: absolute;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14rem;
+    line-height: 1;
+    color: rgba(212,175,55,0.08);
+    user-select: none;
+    pointer-events: none;
+    top: -3rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* ===== Divider ===== */
+  .ornate-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  .ornate-divider::before,
+  .ornate-divider::after {
+    content: '';
+    height: 1px;
+    width: 40px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  /* ===== Focus visibility for accessibility ===== */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ===== Reduced motion ===== */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+    .word-reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      filter: none !important;
+    }
+  }
+
+  /* ===== Reveal-on-scroll fallback (no GSAP) ===== */
+  .reveal-fallback {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal-fallback.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (max-width: 480px) {
+    .quote-mark { font-size: 8rem; top: -2rem; }
+  }
+</style>
+</head>
+
+<body class="bg-night text-ivory antialiased">
+
+<div class="ambient-bg" aria-hidden="true"></div>
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<!-- ============ HERO ============ -->
+<header class="min-h-screen flex flex-col items-center justify-center text-center px-6 py-20 relative">
+  <p class="text-blush/80 text-xs sm:text-sm uppercase tracking-[0.3em] mb-6" data-reveal>Pour toi, aujourd'hui et tous les jours</p>
+
+  <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl leading-tight max-w-4xl text-ivory" id="hero-title">
+    <span class="word-reveal">Joyeux</span>
+    <span class="word-reveal">Anniversaire,</span>
+    <br class="hidden sm:block">
+    <span class="word-reveal text-gold-gradient italic">mon</span>
+    <span class="word-reveal text-gold-gradient italic">amour</span>
+    <span class="word-reveal" aria-hidden="true">❤️</span>
+  </h1>
+
+  <p class="mt-8 max-w-xl text-base sm:text-lg text-ivory/70 font-light leading-relaxed" data-reveal>
+    Aujourd'hui n'est pas un jour comme les autres. C'est le jour où est née la personne qui a tout changé.
+  </p>
+
+  <div class="mt-14 candle-wrap" role="img" aria-label="Une bougie allumée, symbole de célébration">
+    <div class="candle-glow"></div>
+    <div class="candle-flame"></div>
+    <div class="candle-wick"></div>
+    <div class="candle-body"></div>
+  </div>
+
+  <a href="#message" class="scroll-invite mt-16" aria-label="Faire défiler vers le message">
+    <span>Découvrir mon message</span>
+    <svg class="scroll-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </a>
+</header>
+
+<main>
+
+<!-- ============ MESSAGE INTRO ============ -->
+<section id="message" class="px-6 py-24 sm:py-32 max-w-3xl mx-auto text-center">
+  <p class="text-lg sm:text-xl text-ivory/80 leading-relaxed sm:leading-loose font-light reveal-fallback" data-reveal>
+    C'est le jour où est née la personne qui allait bouleverser ma vie et lui donner tout son sens.
+    Chaque jour à tes côtés est un cadeau, mais aujourd'hui, c'est toi que je veux célébrer.
+  </p>
+</section>
+
+<!-- ============ CE QUE TU ES POUR MOI ============ -->
+<section class="px-6 py-16 sm:py-24 max-w-6xl mx-auto" aria-labelledby="cards-heading">
+  <div class="text-center mb-16">
+    <span class="text-gold text-xs uppercase tracking-[0.3em] reveal-fallback" data-reveal>Ce que tu es pour moi</span>
+    <h2 id="cards-heading" class="font-serif text-3xl sm:text-5xl mt-4 text-ivory reveal-fallback" data-reveal>
+      Quatre vérités, un seul cœur
+    </h2>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+
+    <article class="glass-card card-tappable p-8 sm:p-10 reveal-fallback" data-reveal tabindex="0">
+      <span class="text-gold text-3xl" aria-hidden="true">✦</span>
+      <h3 class="font-serif text-2xl sm:text-3xl mt-4 mb-3 text-gold-soft">Mon évidence</h3>
+      <p class="text-ivory/75 leading-relaxed font-light">
+        Celle avec qui tout devient plus simple, plus fluide et infiniment plus beau.
+      </p>
+    </article>
+
+    <article class="glass-card card-tappable p-8 sm:p-10 reveal-fallback" data-reveal tabindex="0">
+      <span class="text-gold text-3xl" aria-hidden="true">✦</span>
+      <h3 class="font-serif text-2xl sm:text-3xl mt-4 mb-3 text-gold-soft">Mon sourire</h3>
+      <p class="text-ivory/75 leading-relaxed font-light">
+        Tu as ce don unique d'illuminer mes journées d'un simple regard ou d'un éclat de rire.
+      </p>
+    </article>
+
+    <article class="glass-card card-tappable p-8 sm:p-10 reveal-fallback" data-reveal tabindex="0">
+      <span class="text-gold text-3xl" aria-hidden="true">✦</span>
+      <h3 class="font-serif text-2xl sm:text-3xl mt-4 mb-3 text-gold-soft">Mon regard</h3>
+      <p class="text-ivory/75 leading-relaxed font-light">
+        Tu es ma façon de voir le monde en plus beau, celle qui donne une toute autre couleur à ma vie et vers qui mes yeux se tournent inévitablement.
+      </p>
+    </article>
+
+    <article class="glass-card card-tappable p-8 sm:p-10 reveal-fallback" data-reveal tabindex="0">
+      <span class="text-gold text-3xl" aria-hidden="true">✦</span>
+      <h3 class="font-serif text-2xl sm:text-3xl mt-4 mb-3 text-gold-soft">Mon avenir</h3>
+      <p class="text-ivory/75 leading-relaxed font-light">
+        Plus le temps passe, plus je me rends compte que je ne veux plus rien imaginer, ni rien construire sans toi à mes côtés.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<!-- ============ CITATION ============ -->
+<section class="px-6 py-24 sm:py-36 max-w-3xl mx-auto text-center relative">
+  <span class="quote-mark" aria-hidden="true">&rdquo;</span>
+  <blockquote class="relative reveal-fallback" data-reveal>
+    <p class="font-serif italic text-2xl sm:text-4xl leading-snug text-gold-gradient">
+      Je t'aime non seulement pour ce que tu es, mais pour ce que je suis quand je suis avec toi.
+    </p>
+  </blockquote>
+</section>
+
+<!-- ============ PROMESSE ============ -->
+<section class="px-6 py-16 sm:py-24 max-w-2xl mx-auto text-center">
+  <div class="ornate-divider mb-10 reveal-fallback" data-reveal aria-hidden="true">
+    <span class="text-gold text-sm">♡</span>
+  </div>
+  <p class="text-base sm:text-lg text-ivory/75 leading-relaxed sm:leading-loose font-light reveal-fallback" data-reveal>
+    En cette nouvelle année qui s'offre à toi, je te promets d'être là pour partager tes joies,
+    te soutenir dans tes projets et t'aimer encore plus fort que la veille.
+    Tu mérites tout le bonheur du monde, et je compte bien y contribuer chaque jour.
+  </p>
+</section>
+
+<!-- ============ OUTRO ============ -->
+<section class="px-6 py-24 sm:py-36 max-w-3xl mx-auto text-center">
+  <h2 class="font-serif text-3xl sm:text-5xl md:text-6xl text-ivory reveal-fallback" data-reveal>
+    Joyeux anniversaire,
+    <span class="block italic text-gold-gradient mt-2">ma reine</span>
+  </h2>
+  <p class="mt-8 text-lg sm:text-xl text-ivory/80 font-light reveal-fallback" data-reveal>
+    Je t'aime plus que les mots ne peuvent le dire.
+    <span aria-hidden="true">👑✨</span>
+    <span class="sr-only">couronne et étincelles</span>
+  </p>
+
+  <div class="mt-16 candle-wrap scale-75 mx-auto reveal-fallback" data-reveal role="img" aria-label="Une bougie allumée">
+    <div class="candle-glow"></div>
+    <div class="candle-flame"></div>
+    <div class="candle-wick"></div>
+    <div class="candle-body"></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="text-center py-10 px-6">
+  <p class="text-ivory/40 text-xs tracking-[0.2em] uppercase reveal-fallback" data-reveal>Avec tout mon amour</p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) {
+    document.body.classList.add('reduced-motion');
+  }
+
+  /* ============================================================
+     1. STARFIELD — lightweight canvas particle field
+     ============================================================ */
+  (function initStarfield() {
+    var canvas = document.getElementById('starfield');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var stars = [];
+    var STAR_COUNT = window.innerWidth < 640 ? 22 : 36;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var width, height;
+
+    function resize() {
+      width = window.innerWidth;
+      height = document.documentElement.scrollHeight;
+      canvas.width = width * dpr;
+      canvas.height = Math.min(height, window.innerHeight * 3) * dpr;
+      canvas.style.width = width + 'px';
+      canvas.style.height = canvas.height / dpr + 'px';
+      ctx.scale(dpr, dpr);
+    }
+
+    function makeStars() {
+      stars = [];
+      var h = canvas.height / dpr;
+      for (var i = 0; i < STAR_COUNT; i++) {
+        stars.push({
+          x: Math.random() * width,
+          y: Math.random() * h,
+          r: Math.random() * 1.6 + 0.4,
+          baseAlpha: Math.random() * 0.5 + 0.3,
+          phase: Math.random() * Math.PI * 2,
+          speed: Math.random() * 0.015 + 0.008,
+          color: Math.random() > 0.7 ? '212,175,55' : '245,241,232'
+        });
+      }
+    }
+
+    var t = 0;
+    function draw() {
+      if (prefersReducedMotion) return;
+      ctx.clearRect(0, 0, width, canvas.height / dpr);
+      t += 1;
+      for (var i = 0; i < stars.length; i++) {
+        var s = stars[i];
+        var alpha = s.baseAlpha + Math.sin(t * s.speed + s.phase) * 0.3;
+        alpha = Math.max(0.05, Math.min(1, alpha));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + s.color + ',' + alpha + ')';
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    function drawStatic() {
+      ctx.clearRect(0, 0, width, canvas.height / dpr);
+      for (var i = 0; i < stars.length; i++) {
+        var s = stars[i];
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + s.color + ',' + s.baseAlpha + ')';
+        ctx.fill();
+      }
+    }
+
+    resize();
+    makeStars();
+
+    if (prefersReducedMotion) {
+      drawStatic();
+    } else {
+      requestAnimationFrame(draw);
+    }
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        resize();
+        makeStars();
+        if (prefersReducedMotion) drawStatic();
+      }, 200);
+    });
+  })();
+
+  /* ============================================================
+     2. SCROLL REVEALS — GSAP if available, IntersectionObserver fallback
+     ============================================================ */
+  var gsapAvailable = (typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined');
+
+  if (gsapAvailable && !prefersReducedMotion) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.querySelectorAll('[data-reveal]').forEach(function (el) {
+      el.classList.remove('reveal-fallback');
+      gsap.fromTo(el,
+        { opacity: 0, y: 28 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.9,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 88%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+    });
+
+    // Stagger the four "ce que tu es" cards together
+    var cards = document.querySelectorAll('.card-tappable');
+    if (cards.length) {
+      gsap.fromTo(cards,
+        { opacity: 0, y: 36 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          stagger: 0.15,
+          scrollTrigger: {
+            trigger: cards[0],
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+    }
+
+    // Hero word-by-word reveal on load
+    gsap.to('.word-reveal', {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      duration: 0.9,
+      ease: 'power2.out',
+      stagger: 0.12,
+      delay: 0.3
+    });
+
+  } else {
+    // ---- Fallback: plain CSS transition + IntersectionObserver ----
+    document.querySelectorAll('.word-reveal').forEach(function (el, i) {
+      el.style.transition = 'opacity 0.7s ease ' + (i * 0.1) + 's, transform 0.7s ease ' + (i * 0.1) + 's, filter 0.7s ease ' + (i * 0.1) + 's';
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+          el.style.filter = 'blur(0px)';
+        });
+      });
+    });
+
+    if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('[data-reveal]').forEach(function (el) {
+        observer.observe(el);
+      });
+    } else {
+      // No IO support or reduced motion: just show everything
+      document.querySelectorAll('[data-reveal]').forEach(function (el) {
+        el.classList.add('is-visible');
+      });
+    }
+  }
+
+  /* ============================================================
+     3. TAP STATE for glass cards on touch devices (no hover)
+     ============================================================ */
+  document.querySelectorAll('.card-tappable').forEach(function (card) {
+    card.addEventListener('touchstart', function () {
+      document.querySelectorAll('.card-tappable.is-active').forEach(function (c) {
+        if (c !== card) c.classList.remove('is-active');
+      });
+      card.classList.toggle('is-active');
+    }, { passive: true });
+
+    card.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        card.classList.toggle('is-active');
+      }
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>
